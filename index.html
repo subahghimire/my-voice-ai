@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>My Voice AI</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: Arial, sans-serif;
+    }
+
+    body {
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: #080808;
+      color: white;
+      padding: 20px;
+    }
+
+    .ai-box {
+      width: 100%;
+      max-width: 600px;
+      text-align: center;
+      padding: 35px 20px;
+      border-radius: 25px;
+      background: #111;
+      box-shadow: 0 0 40px rgba(0, 255, 255, 0.15);
+    }
+
+    h1 {
+      font-size: 32px;
+      margin-bottom: 10px;
+    }
+
+    .status {
+      color: #aaa;
+      margin-bottom: 30px;
+    }
+
+    .mic {
+      width: 110px;
+      height: 110px;
+      border-radius: 50%;
+      border: none;
+      background: #00d9ff;
+      color: #000;
+      font-size: 45px;
+      cursor: pointer;
+      transition: 0.3s;
+      box-shadow: 0 0 30px rgba(0, 217, 255, 0.5);
+    }
+
+    .mic:active {
+      transform: scale(0.92);
+    }
+
+    .listening {
+      animation: pulse 1s infinite;
+      background: #ff3b3b;
+      color: white;
+    }
+
+    @keyframes pulse {
+      0% {
+        box-shadow: 0 0 10px rgba(255, 59, 59, 0.4);
+      }
+
+      50% {
+        box-shadow: 0 0 50px rgba(255, 59, 59, 0.9);
+      }
+
+      100% {
+        box-shadow: 0 0 10px rgba(255, 59, 59, 0.4);
+      }
+    }
+
+    .conversation {
+      margin-top: 30px;
+      text-align: left;
+    }
+
+    .message {
+      padding: 15px;
+      margin-top: 12px;
+      border-radius: 15px;
+      background: #1c1c1c;
+      line-height: 1.5;
+    }
+
+    .you {
+      border-left: 4px solid #00d9ff;
+    }
+
+    .ai {
+      border-left: 4px solid #7cff00;
+    }
+
+    .label {
+      font-size: 12px;
+      color: #999;
+      margin-bottom: 5px;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="ai-box">
+
+    <h1>🤖 My Voice AI</h1>
+
+    <p class="status" id="status">
+      Press the microphone and speak
+    </p>
+
+    <button class="mic" id="micButton">
+      🎤
+    </button>
+
+    <div class="conversation">
+
+      <div class="message you">
+        <div class="label">YOU</div>
+        <div id="userText">
+          Waiting for your voice...
+        </div>
+      </div>
+
+      <div class="message ai">
+        <div class="label">AI</div>
+        <div id="aiText">
+          Hello! मलाई केही भन्नुहोस्।
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+
+<script>
+
+const micButton = document.getElementById("micButton");
+const statusText = document.getElementById("status");
+const userText = document.getElementById("userText");
+const aiText = document.getElementById("aiText");
+
+const SpeechRecognition =
+  window.SpeechRecognition ||
+  window.webkitSpeechRecognition;
+
+if (!SpeechRecognition) {
+
+  statusText.innerText =
+    "Your browser does not support voice recognition.";
+
+} else {
+
+  const recognition = new SpeechRecognition();
+
+  recognition.continuous = false;
+  recognition.interimResults = false;
+
+  /*
+    नेपाली र English दुवैका लागि
+    browser ले बोलेको language अनुसार
+    recognition प्रयोग गर्नेछ।
+  */
+
+  recognition.lang = "ne-NP";
+
+  micButton.addEventListener("click", () => {
+
+    try {
+
+      recognition.start();
+
+      micButton.classList.add("listening");
+
+      statusText.innerText =
+        "🎤 सुन्दैछु... / Listening...";
+
+    } catch (error) {
+
+      console.log(error);
+
+    }
+
+  });
+
+  recognition.onresult = function(event) {
+
+    const text =
+      event.results[0][0].transcript;
+
+    userText.innerText = text;
+
+    statusText.innerText =
+      "Voice received ✓";
+
+    /*
+      अहिले demo response हो।
+      अर्को step मा वास्तविक AI जोड्नेछौँ।
+    */
+
+    const reply = generateReply(text);
+
+    aiText.innerText = reply;
+
+    speak(reply);
+
+  };
+
+  recognition.onend = function() {
+
+    micButton.classList.remove("listening");
+
+    statusText.innerText =
+      "Press microphone to speak again";
+
+  };
+
+  recognition.onerror = function(event) {
+
+    micButton.classList.remove("listening");
+
+    statusText.innerText =
+      "Voice error: " + event.error;
+
+  };
+
+}
+
+
+/* --------------------------------
+   BASIC AI RESPONSE
+-------------------------------- */
+
+function generateReply(text) {
+
+  const message = text.toLowerCase();
+
+  if (
+    message.includes("hello") ||
+    message.includes("hi") ||
+    message.includes("नमस्ते")
+  ) {
+
+    return "नमस्ते! म तपाईंको Voice AI Assistant हुँ।";
+
+  }
+
+  if (
+    message.includes("who are you") ||
+    message.includes("तिमी को हौ")
+  ) {
+
+    return "म तपाईंले बनाउँदै गरेको आफ्नै Voice AI Assistant हुँ।";
+
+  }
+
+  if (
+    message.includes("thank") ||
+    message.includes("धन्यवाद")
+  ) {
+
+    return "You're welcome! खुशी लाग्यो।";
+
+  }
+
+  return "मैले तपाईंको कुरा सुनेँ। अर्को चरणमा मलाई वास्तविक AI सँग जोड्नेछौँ।";
+
+}
+
+
+/* --------------------------------
+   TEXT TO SPEECH
+-------------------------------- */
+
+function speak(text) {
+
+  if (!("speechSynthesis" in window)) {
+    return;
+  }
+
+  window.speechSynthesis.cancel();
+
+  const speech =
+    new SpeechSynthesisUtterance(text);
+
+  speech.lang = "ne-NP";
+  speech.rate = 0.95;
+  speech.pitch = 1;
+
+  window.speechSynthesis.speak(speech);
+
+}
+
+</script>
+
+</body>
+</html>
