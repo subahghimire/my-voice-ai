@@ -167,12 +167,6 @@ if (!SpeechRecognition) {
   recognition.continuous = false;
   recognition.interimResults = false;
 
-  /*
-    नेपाली र English दुवैका लागि
-    browser ले बोलेको language अनुसार
-    recognition प्रयोग गर्नेछ।
-  */
-
   recognition.lang = "ne-NP";
 
   micButton.addEventListener("click", () => {
@@ -204,11 +198,6 @@ if (!SpeechRecognition) {
     statusText.innerText =
       "Voice received ✓";
 
-    /*
-      अहिले demo response हो।
-      अर्को step मा वास्तविक AI जोड्नेछौँ।
-    */
-
     const reply = generateReply(text);
 
     aiText.innerText = reply;
@@ -238,9 +227,7 @@ if (!SpeechRecognition) {
 }
 
 
-/* --------------------------------
-   BASIC AI RESPONSE
--------------------------------- */
+/* BASIC AI RESPONSE */
 
 function generateReply(text) {
 
@@ -279,9 +266,7 @@ function generateReply(text) {
 }
 
 
-/* --------------------------------
-   TEXT TO SPEECH
--------------------------------- */
+/* TEXT TO SPEECH */
 
 function speak(text) {
 
